@@ -214,8 +214,8 @@ const Logo = () => {
   );
 };
 
-const transition = {
-  type: "spring" as const,   // 👈 cast literal, elimina l'errore di tipo
+const transition: Transition = {
+  type: "spring",   // 👈 cast literal, elimina l'errore di tipo
   mass: 0.5,
   damping: 20,
   stiffness: 160,
