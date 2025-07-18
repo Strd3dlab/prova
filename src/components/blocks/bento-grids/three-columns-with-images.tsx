@@ -170,16 +170,16 @@ const CardDescription = ({
 }) => {
   const variants = { initial: { x: 0 }, animate: { x: 15 } };
   return (
-    <motion.p
-      variants={variants}
-      transition={{ type: "easeOut", duration: 0.2 }}
-      className={cn(
-        "mt-2 max-w-xs font-sans text-base font-normal tracking-tight text-neutral-500 dark:text-neutral-400",
-        className
-      )}
-    >
-      {children}
-    </motion.p>
+<motion.p
+  variants={variants}
+  transition={{ type: "tween", ease: "easeOut", duration: 0.2 }}  // ← FIX
+  className={cn(
+    "mt-2 max-w-xs font-sans text-base font-normal tracking-tight text-neutral-500 dark:text-neutral-400",
+    className
+  )}
+>
+  {children}
+</motion.p>
   );
 };
 
