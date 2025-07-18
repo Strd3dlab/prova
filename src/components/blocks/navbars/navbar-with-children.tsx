@@ -215,10 +215,10 @@ const Logo = () => {
 };
 
 const transition = {
-  type: "spring",
+  type: "spring" as const,   // 👈 cast literal, elimina l'errore di tipo
   mass: 0.5,
-  damping: 11.5,
-  stiffness: 100,
+  damping: 20,
+  stiffness: 160,
   restDelta: 0.001,
   restSpeed: 0.001,
 };
