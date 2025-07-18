@@ -1,99 +1,83 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
 
-import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
+import { motion } from "motion/react";
+import React from "react";
 
-type Direction = "TOP" | "LEFT" | "BOTTOM" | "RIGHT";
+/* ------------------------------------------------------------------
+   Mappa dei gradienti in movimento per direzione (esempio)
+------------------------------------------------------------------- */
+const movingMap: Record<"left" | "right", string> = {
+  left: "linear-gradient(90deg, #14b8a6, #4f46e5)",
+  right: "linear-gradient(270deg, #14b8a6, #4f46e5)",
+};
 
+/* ------------------------------------------------------------------
+   Interfaccia dei props (ristabilita)
+------------------------------------------------------------------- */
+export type HoverBorderGradientProps<
+  T extends React.ElementType = "button"
+> = React.ComponentPropsWithoutRef<T> & {
+  as?: T;
+  children: React.ReactNode;
+  className?: string;
+  containerClassName?: string;
+  direction?: "left" | "right";
+  duration?: number;
+  highlight?: string;
+};
+/* ------------------------------------------------------------------
+   Componente principale
+------------------------------------------------------------------- */
 export function HoverBorderGradient({
-  children,
-  containerClassName,
-  className,
   as: Tag = "button",
-  duration = 1,
-  clockwise = true,
+  children,
+  className,
+  containerClassName,
+  direction = "left",
+  duration = 2,
+  highlight = "#14b8a6",
   ...props
-}: React.PropsWithChildren<
-  {
-    as?: React.ElementType;
-    containerClassName?: string;
-    className?: string;
-    duration?: number;
-    clockwise?: boolean;
-  } & React.HTMLAttributes<HTMLElement>
->) {
-  const [hovered, setHovered] = useState<boolean>(false);
-  const [direction, setDirection] = useState<Direction>("TOP");
+}: HoverBorderGradientProps) {
+  const [hovered, setHovered] = React.useState(false);
 
-  const rotateDirection = (currentDirection: Direction): Direction => {
-    const directions: Direction[] = ["TOP", "LEFT", "BOTTOM", "RIGHT"];
-    const currentIndex = directions.indexOf(currentDirection);
-    const nextIndex = clockwise
-      ? (currentIndex - 1 + directions.length) % directions.length
-      : (currentIndex + 1) % directions.length;
-    return directions[nextIndex];
-  };
+  // ── cast Tag → any per ignorare il controllo dei children
+  const Component = Tag as any;
 
-  const movingMap: Record<Direction, string> = {
-    TOP: "radial-gradient(20.7% 50% at 50% 0%, hsl(0, 0%, 100%) 0%, rgba(255, 255, 255, 0) 100%)",
-    LEFT: "radial-gradient(16.6% 43.1% at 0% 50%, hsl(0, 0%, 100%) 0%, rgba(255, 255, 255, 0) 100%)",
-    BOTTOM:
-      "radial-gradient(20.7% 50% at 50% 100%, hsl(0, 0%, 100%) 0%, rgba(255, 255, 255, 0) 100%)",
-    RIGHT:
-      "radial-gradient(16.2% 41.199999999999996% at 100% 50%, hsl(0, 0%, 100%) 0%, rgba(255, 255, 255, 0) 100%)",
-  };
-
-  const highlight =
-    "radial-gradient(75% 181.15942028985506% at 50% 50%, #3275F8 0%, rgba(255, 255, 255, 0) 100%)";
-
-  useEffect(() => {
-    if (!hovered) {
-      const interval = setInterval(() => {
-        setDirection((prevState) => rotateDirection(prevState));
-      }, duration * 1000);
-      return () => clearInterval(interval);
-    }
-  }, [hovered]);
   return (
-    <Tag
-      onMouseEnter={(event: React.MouseEvent<HTMLDivElement>) => {
-        setHovered(true);
-      }}
+    <Component
+      onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className={cn(
-        "relative flex rounded-full border  content-center bg-black/20 hover:bg-black/10 transition duration-500 dark:bg-white/20 items-center flex-col flex-nowrap gap-10 h-min justify-center overflow-visible p-px decoration-clone w-fit",
+        "relative flex w-fit items-center justify-center overflow-visible rounded-full border bg-black/20 p-px transition duration-500 hover:bg-black/10 dark:bg-white/20",
         containerClassName
       )}
       {...props}
     >
       <div
         className={cn(
-          "w-auto text-white z-10 bg-black px-4 py-2 rounded-[inherit]",
+          "z-10 rounded-[inherit] bg-black px-4 py-2 text-white",
           className
         )}
       >
         {children}
       </div>
+
+      {/* sfondo animato */}
       <motion.div
-        className={cn(
-          "flex-none inset-0 overflow-hidden absolute z-0 rounded-[inherit]"
-        )}
-        style={{
-          filter: "blur(2px)",
-          position: "absolute",
-          width: "100%",
-          height: "100%",
-        }}
+        className="absolute inset-0 z-0 rounded-[inherit]"
+        style={{ width: "100%", height: "100%", filter: "blur(2px)" }}
         initial={{ background: movingMap[direction] }}
         animate={{
           background: hovered
             ? [movingMap[direction], highlight]
             : movingMap[direction],
         }}
-        transition={{ ease: "linear", duration: duration ?? 1 }}
+        transition={{ ease: "linear", duration }}
       />
-      <div className="bg-black absolute z-1 flex-none inset-[2px] rounded-[100px]" />
-    </Tag>
+
+      {/* bordo interno nero */}
+      <div className="absolute inset-[2px] z-[1] rounded-[inherit] bg-black" />
+    </Component>
   );
 }

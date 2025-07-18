@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
+import type { Transition } from "framer-motion";
 
 export function NavbarWithChildren() {
   return <Navbar />;
